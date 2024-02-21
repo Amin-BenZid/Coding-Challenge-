@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Orbitron&family=Permanent+Marker&family=Pixelify+Sans:wght@500&display=swap");
+
+body {
+  margin: 0;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  /* font-family: "Orbitron", sans-serif;
+  font-family: "Permanent Marker", cursive; */
+  /* font-family: "Pixelify Sans", sans-serif; */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* background-color: #202124;
+  color: #00ff00; */
+}
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
