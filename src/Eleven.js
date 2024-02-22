@@ -4,8 +4,38 @@ import copy from "./img/Copy.svg";
 import horizotal from "./img/Horizontal_top_left_main.svg";
 import sort from "./img/Sort_alfa.svg";
 import sound from "./img/sound_max_fill.svg";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const Eleven = () => {
+  const [text, setText] = useState("hello friend");
+  const [res, setRes] = useState("");
+  const [from, setFrom] = useState("en");
+  const [to, setTo] = useState("fr");
+  const languages = [
+    { name: "Spanish", code: "es" },
+    { name: "Arabic", code: "ar" },
+    { name: "German", code: "de" },
+    { name: "Italian", code: "it" },
+    { name: "Portuguese", code: "pt" },
+    { name: "Chinese", code: "zh-CN" },
+    { name: "Japanese", code: "ja" },
+    { name: "Hindi", code: "hi" },
+    { name: "Korean", code: "ko" },
+    { name: "Turkish", code: "tr" },
+  ];
+  console.log(from, to);
+  useEffect(() => {
+    axios
+      .get(`https://api.mymemory.translated.net/get?q=${text}!&langpair=${from}|${to}`)
+      .then((ress) => {
+        setRes(ress.data.responseData.translatedText.split("").slice(0, -1).join(""));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [text, to, from]);
+
   return (
     <div
       className="bg-cover bg-center h-screen w-screen flex flex-col items-center p-4 gap-4 md:py-16 md:px-20 "
@@ -17,12 +47,48 @@ const Eleven = () => {
           <div className=" w-full h-14 flex flex-col justify-center">
             <ul className="flex gap-3 pb-3 pl-1 text-gray-500 text-sm md:text-xl items-center">
               <li>Detect Language</li>
-              <li className="bg-gray-500 text-white p-1 rounded-lg md:px-4">English</li>
-              <li>Frensh</li>
+              <li
+                className={
+                  from === "en"
+                    ? "bg-gray-500 text-white p-1 rounded-lg md:px-4 cursor-pointer hover:opacity-75"
+                    : "p-1 rounded-lg md:px-4 cursor-pointer hover:opacity-75"
+                }
+                onClick={() => {
+                  setFrom("en");
+                }}
+              >
+                English
+              </li>
+              <li
+                className={
+                  from === "fr"
+                    ? "bg-gray-500 text-white p-1 rounded-lg md:px-4 cursor-pointer hover:opacity-75"
+                    : "p-1 rounded-lg md:px-4 cursor-pointer hover:opacity-75"
+                }
+                onClick={() => {
+                  setFrom("fr");
+                }}
+              >
+                Frensh
+              </li>
               <li>
-                <select className="w-12 bg-transparent md:w-full">
-                  <option>Spanish</option>
-                  <option>Spanish</option>
+                <select
+                  className={
+                    from !== "en" && from !== "fr"
+                      ? "bg-gray-500 text-white p-1 rounded-lg md:px-4  hover:opacity-75 w-12 bg-transparent md:w-full cursor-pointer"
+                      : "p-1 rounded-lg md:px-4  hover:opacity-75 w-12 bg-transparent md:w-full cursor-pointer"
+                  }
+                  onChange={(event) => {
+                    let selectedLanguageCode = event.target.value;
+                    setFrom(selectedLanguageCode);
+                  }}
+                  value={from}
+                >
+                  {languages.map((language, key) => (
+                    <option key={key} value={language.code}>
+                      {language.name}
+                    </option>
+                  ))}
                 </select>
               </li>
             </ul>
@@ -31,10 +97,11 @@ const Eleven = () => {
           <textarea
             className="w-full h-full text-[12px] bg-transparent pt-4 resize-none text-white focus:outline-none md:text-lg md:h-[56%] lg:h-full "
             maxlength="500"
-          >
-            At w3schools.com you will learn how to make a website. They offer free
-            tutorials in all web development technologies.
-          </textarea>
+            value={text || ""}
+            onChange={(e) => {
+              setText(e.target.value);
+            }}
+          ></textarea>
           {/* max length counter */}
           <p className="w-full text-right text-gray-500 text-sm py-2 md:pb-4 md:text-lg">
             19/500
@@ -60,18 +127,58 @@ const Eleven = () => {
         <div className="h-[30%] md:h-[35%] lg:h-[80%] lg:p-10  w-full bg-[#0F1523] opacity-90 rounded-3xl border border-gray-400 flex flex-col p-4 px-6 ">
           <div className=" w-full h-14 flex flex-col justify-center">
             <ul className="flex gap-3 pb-3 pl-1 text-gray-500 text-sm md:text-xl items-center relative">
-              <li className="bg-gray-500 text-white p-1 rounded-lg md:px-4">French</li>
-              <li>English</li>
+              <li
+                className={
+                  to === "en"
+                    ? "bg-gray-500 text-white p-1 rounded-lg md:px-4 cursor-pointer hover:opacity-75"
+                    : "p-1 rounded-lg md:px-4 cursor-pointer hover:opacity-75"
+                }
+                onClick={() => {
+                  setTo("en");
+                }}
+              >
+                English
+              </li>
+              <li
+                className={
+                  to === "fr"
+                    ? "bg-gray-500 text-white p-1 rounded-lg md:px-4 cursor-pointer hover:opacity-75"
+                    : "p-1 rounded-lg md:px-4 cursor-pointer hover:opacity-75"
+                }
+                onClick={() => {
+                  setTo("fr");
+                }}
+              >
+                Frensh
+              </li>
               <li>
-                <select className="w-12 bg-transparent md:w-full">
-                  <option>Spanish</option>
-                  <option>Spanish</option>
+                <select
+                  className={
+                    to !== "en" && from !== "fr"
+                      ? "bg-gray-500 text-white p-1 rounded-lg md:px-4  hover:opacity-75 w-12 bg-transparent md:w-full cursor-pointer"
+                      : "p-1 rounded-lg md:px-4  hover:opacity-75 w-12 bg-transparent md:w-full cursor-pointer"
+                  }
+                  onChange={(event) => {
+                    let selectedLanguageCode = event.target.value;
+                    setTo(selectedLanguageCode);
+                  }}
+                  value={to}
+                >
+                  {languages.map((language, key) => (
+                    <option className="bg-transparent" key={key} value={language.code}>
+                      {language.name}
+                    </option>
+                  ))}
                 </select>
               </li>
               <img
                 src={horizotal}
                 className="w-9 absolute right-0 cursor-pointer hover:opacity-60 transition-all"
-                onClick={() => alert("zz")}
+                onClick={() => {
+                  setText(res);
+                  setTo(from);
+                  setFrom(to);
+                }}
               />
             </ul>
             <div className="w-full h-[1px] bg-gray-500 "></div>
@@ -79,10 +186,8 @@ const Eleven = () => {
           <textarea
             className="w-full text-[12px] h-full bg-transparent pt-4 resize-none	text-white focus:outline-none md:text-lg md:h-[70%] lg:h-full"
             maxlength="500"
-          >
-            Sur w3schools.com, vous apprendrez à créer un site Web. Ils proposent des
-            tutoriels gratuits sur toutes les technologies de développement Web.
-          </textarea>
+            value={res || ""}
+          ></textarea>
 
           <div className=" w-full h-9 flex gap-2 items-center relative">
             <img
