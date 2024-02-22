@@ -8,12 +8,13 @@ import Seven from "./Seven";
 import Eight from "./Eight";
 import Nine from "./Nine";
 import Ten from "./Ten";
+import Eleven from "./Eleven";
 
 function App() {
   return (
     <div className="">
-      {/* <One /> */}
-      {/* <Two /> */}
+      {/* <One />
+      <Two /> */}
       {/* <Three /> rework */}
       {/* <Four /> */}
       {/* <Five /> */}
@@ -21,7 +22,8 @@ function App() {
       {/* <Seven /> */}
       {/* <Eight /> */}
       {/* <Nine /> */}
-      <Ten />
+      {/* <Ten /> */}
+      <Eleven />
     </div>
   );
 }
