@@ -46,7 +46,6 @@ const Eleven = () => {
         <div className="h-[30%] md:h-[35%] lg:h-[80%] lg:p-10 w-full bg-[#272B37] opacity-80 rounded-3xl border border-gray-400 flex flex-col p-4 px-6 ">
           <div className=" w-full h-14 flex flex-col justify-center">
             <ul className="flex gap-3 pb-3 pl-1 text-gray-500 text-sm md:text-xl items-center">
-              <li>Detect Language</li>
               <li
                 className={
                   from === "en"
@@ -73,11 +72,9 @@ const Eleven = () => {
               </li>
               <li>
                 <select
-                  className={
-                    from !== "en" && from !== "fr"
-                      ? "bg-gray-500 text-white p-1 rounded-lg md:px-4  hover:opacity-75 w-12 bg-transparent md:w-full cursor-pointer"
-                      : "p-1 rounded-lg md:px-4  hover:opacity-75 w-12 bg-transparent md:w-full cursor-pointer"
-                  }
+                  className={`${
+                    from !== "en" && from !== "fr" ? "bg-gray-500 text-white" : ""
+                  } p-1 rounded-lg md:px-4 hover:opacity-75 w-12 md:w-full cursor-pointer bg-transparent`}
                   onChange={(event) => {
                     let selectedLanguageCode = event.target.value;
                     setFrom(selectedLanguageCode);
@@ -85,7 +82,7 @@ const Eleven = () => {
                   value={from}
                 >
                   {languages.map((language, key) => (
-                    <option key={key} value={language.code}>
+                    <option className=" text-gray-500" key={key} value={language.code}>
                       {language.name}
                     </option>
                   ))}
@@ -153,11 +150,9 @@ const Eleven = () => {
               </li>
               <li>
                 <select
-                  className={
-                    to !== "en" && from !== "fr"
-                      ? "bg-gray-500 text-white p-1 rounded-lg md:px-4  hover:opacity-75 w-12 bg-transparent md:w-full cursor-pointer"
-                      : "p-1 rounded-lg md:px-4  hover:opacity-75 w-12 bg-transparent md:w-full cursor-pointer"
-                  }
+                  className={`${
+                    to !== "en" && to !== "fr" ? "bg-gray-500 text-white" : ""
+                  } p-1 rounded-lg md:px-4 hover:opacity-75 w-12 md:w-full cursor-pointer bg-transparent`}
                   onChange={(event) => {
                     let selectedLanguageCode = event.target.value;
                     setTo(selectedLanguageCode);
@@ -165,7 +160,7 @@ const Eleven = () => {
                   value={to}
                 >
                   {languages.map((language, key) => (
-                    <option className="bg-transparent" key={key} value={language.code}>
+                    <option key={key} value={language.code}>
                       {language.name}
                     </option>
                   ))}
