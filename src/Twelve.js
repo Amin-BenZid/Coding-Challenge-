@@ -3,17 +3,31 @@ import logo from "./img/Logo1.svg";
 import done from "./img/Done_round1.svg";
 import expand from "./img/Expand_down.svg";
 import search from "./img/Search.svg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { CountryCodes } from "validator/lib/isISO31661Alpha2";
 
 const Twelve = () => {
+  const [countries, setCountries] = useState();
+  useEffect(() => {
+    fetch(
+      "https://restcountries.com/v3.1/all?fields=name,flags,population,area,region,unMember,independent"
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setCountries(data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
   return (
     <div>
-      <PageOne />
+      <PageOne countries={countries} />
     </div>
   );
 };
 // ::::::::::::::::::::::::::::PAGE ONE:::::::::::::::::::::::::::::: //
-const PageOne = () => {
+const PageOne = ({ countries }) => {
   return (
     <div className="">
       <div
@@ -22,8 +36,9 @@ const PageOne = () => {
       >
         <img src={logo} />
       </div>
-      <div className="bg-[#1C1D1F] min-h-screen max-h- text-white p-4">
+      <div className="bg-[#1C1D1F] min-h-screen max-h- text-white p-4 ">
         <Controlers />
+        <Table countries={countries} />
       </div>
     </div>
   );
@@ -166,7 +181,6 @@ const Region = () => {
     </div>
   );
 };
-
 const CheckBox = () => {
   const [isChecked, setChecked] = useState(false);
 
@@ -184,6 +198,103 @@ const CheckBox = () => {
       {isChecked && (
         <div className="w-full h-full flex items-center justify-center text-white">✔</div>
       )}
+    </div>
+  );
+};
+const Table = ({ countries }) => {
+  const [active, setActive] = useState(1);
+  const [data, setData] = useState();
+  useEffect(() => {
+    if (countries) {
+      if (active == 1) {
+        setData(countries.slice(0, 10));
+      }
+    }
+  }, [active]);
+
+  const next = () => {
+    if (active === 25) return;
+    const startIndex = (active - 1) * 10 + 10;
+    const endIndex = startIndex + 10;
+    setActive(active + 1);
+    setData(countries.slice(startIndex, endIndex));
+  };
+
+  const prev = () => {
+    if (active === 1) return;
+
+    const startIndex = (active - 2) * 10;
+    const endIndex = startIndex + 10;
+    setActive(active - 1);
+    setData(countries.slice(startIndex, endIndex));
+  };
+  return (
+    <div className="flex flex-col">
+      <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
+          <div className="overflow-hidden">
+            <table className="min-w-full text-left text-sm font-light">
+              <thead className="border-b font-medium dark:border-neutral-500">
+                <tr>
+                  <th scope="col" className="px-6 py-4">
+                    Flag
+                  </th>
+                  <th scope="col" className="px-6 py-4">
+                    Name
+                  </th>
+                  <th scope="col" className="px-6 py-4">
+                    Population
+                  </th>
+                  <th scope="col" className="px-6 py-4">
+                    Are
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {data
+                  ? data.map((e, key) => {
+                      return (
+                        <tr
+                          key={key}
+                          className="transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600"
+                        >
+                          <td>
+                            <div className="flex py-3">
+                              <div
+                                className="bg-cover bg-center flex justify-center h-10 w-14 rounded-md "
+                                style={{ backgroundImage: `url(${e.flags.png})` }}
+                              ></div>
+                            </div>
+                          </td>
+                          <td>{e.name.common}</td>
+                          <td>{e.population}</td>
+                          <td>{e.area}</td>
+                        </tr>
+                      );
+                    })
+                  : null}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-4 items-center pt-4 justify-center">
+        <button
+          onClick={prev}
+          className="border-2 border-gray-600 rounded-lg text-gray-300 p-4 w-8 h-8 flex justify-center items-center"
+        >
+          {"<"}
+        </button>
+        <p>
+          Page <strong>{active}</strong> of <strong>25</strong>
+        </p>
+        <button
+          onClick={next}
+          className="border-2 border-gray-600 rounded-lg text-gray-300 p-4 w-8 h-8 flex justify-center items-center"
+        >
+          {">"}
+        </button>
+      </div>
     </div>
   );
 };
