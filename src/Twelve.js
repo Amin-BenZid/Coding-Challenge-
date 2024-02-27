@@ -4,7 +4,6 @@ import done from "./img/Done_round1.svg";
 import expand from "./img/Expand_down.svg";
 import search from "./img/Search.svg";
 import { useEffect, useState } from "react";
-import { CountryCodes } from "validator/lib/isISO31661Alpha2";
 
 const Twelve = () => {
   const [countries, setCountries] = useState();
@@ -28,6 +27,28 @@ const Twelve = () => {
 };
 // ::::::::::::::::::::::::::::PAGE ONE:::::::::::::::::::::::::::::: //
 const PageOne = ({ countries }) => {
+  const [region, setRegion] = useState([]);
+  const [data, setData] = useState();
+  const [filtredData, setFiltredData] = useState();
+  const [selectedRegions, setSelectedRegions] = useState([]);
+
+  useEffect(() => {
+    setFiltredData(data);
+  }, [data]);
+
+  var array = data;
+  const search = () => {
+    const uniqueArray = [...new Set(selectedRegions)];
+    setSelectedRegions(uniqueArray);
+    if (data && selectedRegions.length > 0) {
+      array = data.filter((item) => selectedRegions.includes(item.region));
+      return array;
+    } else return array;
+  };
+  useEffect(() => {
+    setFiltredData(search());
+  }, [selectedRegions.length]);
+
   return (
     <div className="">
       <div
@@ -36,16 +57,28 @@ const PageOne = ({ countries }) => {
       >
         <img src={logo} />
       </div>
-      <div className="bg-[#1C1D1F] min-h-screen max-h- text-white p-4 ">
-        <Controlers />
-        <Table countries={countries} />
+      <div className="bg-[#1C1D1F] min-h-screen  text-white p-4 ">
+        <Controlers
+          countries={countries}
+          setRegion={setRegion}
+          region={region}
+          setSelectedRegions={setSelectedRegions}
+          selectedRegions={selectedRegions}
+        />
+        <Table countries={countries} data={filtredData} setData={setData} />
       </div>
     </div>
   );
 };
 // ::::::::::::::::::::::::::::END PAGE ONE::::::::::::::::::::::::::: //
-const Controlers = () => {
-  let countriesFound = 234;
+const Controlers = ({
+  countries,
+  setRegion,
+  region,
+  setSelectedRegions,
+  selectedRegions,
+}) => {
+  let countriesFound = 250;
   const [selectedOption, setSelectedOption] = useState("Option 1");
   return (
     <div className="flex flex-col items-center">
@@ -79,7 +112,13 @@ const Controlers = () => {
       {/* End Line two */}
       {/* Line Three */}
       <div className="w-full">
-        <Region />
+        <Region
+          countries={countries}
+          setRegion={setRegion}
+          region={region}
+          setSelectedRegions={setSelectedRegions}
+          selectedRegions={selectedRegions}
+        />
       </div>
       {/* End Line Three */}
       {/* line Four */}
@@ -87,13 +126,14 @@ const Controlers = () => {
         <p className="text-sm text-stone-500 pb-2">Status</p>
         <div className="w-full flex flex-col gap-4">
           <div className="flex items-center gap-4 ">
-            <CheckBox />
+            <input type="checkbox" />
             <p className="text-sm text-gray-400 font-bold">
               Memeber of the United Nations
             </p>
           </div>
           <div className="flex items-center gap-4 ">
-            <CheckBox /> <p className="text-sm text-gray-400 font-bold">Independent</p>
+            <input type="checkbox" />
+            <p className="text-sm text-gray-400 font-bold">Independent</p>
           </div>
         </div>
       </div>
@@ -158,25 +198,39 @@ const DropDownMenu = ({ setSelectedOption, selectedOption }) => {
     </div>
   );
 };
-const Region = () => {
+const Region = ({ setRegion, setProp, setSelectedRegions, selectedRegions }) => {
   const regions = ["Americas", "Antarctic", "Africa", "Asia", "Europe", "Oceania"];
-  const data = "dd";
+
+  const toggleRegion = (region) => {
+    if (selectedRegions.includes(region)) {
+      setSelectedRegions((prevSelected) =>
+        prevSelected.filter((selectedRegion) => selectedRegion !== region)
+      );
+    } else {
+      setSelectedRegions((prevSelected) => [...prevSelected, region]);
+    }
+  };
+
   return (
     <div className="w-full h-auto pb-8 flex flex-col">
       <p className="text-sm text-stone-500 pt-8">Region</p>
       <div className="w-full h-auto pt-2 grid grid-cols-2">
-        {regions.map((e, key) => {
-          return (
-            <div
-              key={key}
-              className={`h-10 w-${
-                e.length * 4
-              } bg-gray-600 text-gray-300 font-bold text-sm bg-opacity-35 m-1 flex items-center justify-center gap-2 rounded-lg `}
-            >
-              {e}
-            </div>
-          );
-        })}
+        {regions.map((e, key) => (
+          <div
+            onClick={() => {
+              toggleRegion(e);
+              setRegion((current) =>
+                selectedRegions.includes(e) ? current : [...current, e]
+              );
+            }}
+            key={key}
+            className={`h-10 w-${e.length * 4} ${
+              selectedRegions.includes(e) ? "bg-gray-600" : ""
+            } text-gray-300 font-bold text-sm bg-opacity-35 m-1 flex items-center pl-4 gap-2 rounded-lg cursor-pointer hover:bg-slate-100 hover:bg-opacity-20 transition-all`}
+          >
+            {e}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -201,16 +255,15 @@ const CheckBox = () => {
     </div>
   );
 };
-const Table = ({ countries }) => {
+const Table = ({ countries, data, setData }) => {
   const [active, setActive] = useState(1);
-  const [data, setData] = useState();
   useEffect(() => {
     if (countries) {
       if (active == 1) {
         setData(countries.slice(0, 10));
       }
     }
-  }, [active]);
+  }, []);
 
   const next = () => {
     if (active === 25) return;
@@ -228,8 +281,9 @@ const Table = ({ countries }) => {
     setActive(active - 1);
     setData(countries.slice(startIndex, endIndex));
   };
+
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-[90vw]">
       <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
           <div className="overflow-hidden">
@@ -251,28 +305,32 @@ const Table = ({ countries }) => {
                 </tr>
               </thead>
               <tbody>
-                {data
-                  ? data.map((e, key) => {
-                      return (
-                        <tr
-                          key={key}
-                          className="transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600"
-                        >
-                          <td>
-                            <div className="flex py-3">
-                              <div
-                                className="bg-cover bg-center flex justify-center h-10 w-14 rounded-md "
-                                style={{ backgroundImage: `url(${e.flags.png})` }}
-                              ></div>
-                            </div>
-                          </td>
-                          <td>{e.name.common}</td>
-                          <td>{e.population}</td>
-                          <td>{e.area}</td>
-                        </tr>
-                      );
-                    })
-                  : null}
+                {data ? (
+                  data.map((e, key) => {
+                    return (
+                      <tr
+                        key={key}
+                        className="transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600"
+                      >
+                        <td>
+                          <div className="flex py-3">
+                            <div
+                              className="bg-cover bg-center flex justify-center h-10 w-14 rounded-md "
+                              style={{ backgroundImage: `url(${e.flags.png})` }}
+                            ></div>
+                          </div>
+                        </td>
+                        <td>{e.name.common}</td>
+                        <td>{e.population}</td>
+                        <td>{e.area}</td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td>Loading...</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
