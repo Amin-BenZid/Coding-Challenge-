@@ -31,16 +31,26 @@ const PageOne = ({ countries }) => {
   const [data, setData] = useState();
   const [filtredData, setFiltredData] = useState();
   const [selectedRegions, setSelectedRegions] = useState([]);
+  const [selectedOption, setSelectedOption] = useState("Population");
 
   useEffect(() => {
     setFiltredData(data);
   }, [data]);
 
   var array = data;
+
+  const population = () => {
+    const sorted = [...data].sort((a, b) => b.population - a.population);
+    return sorted;
+  };
+  const area = () => {
+    const sorted = [...data].sort((a, b) => b.area - a.area);
+    return sorted;
+  };
   const search = () => {
-    const uniqueArray = [...new Set(selectedRegions)];
-    setSelectedRegions(uniqueArray);
     if (data && selectedRegions.length > 0) {
+      const uniqueArray = [...new Set(selectedRegions)];
+      setSelectedRegions(uniqueArray);
       array = data.filter((item) => selectedRegions.includes(item.region));
       return array;
     } else return array;
@@ -48,6 +58,14 @@ const PageOne = ({ countries }) => {
   useEffect(() => {
     setFiltredData(search());
   }, [selectedRegions.length]);
+
+  useEffect(() => {
+    if (data) {
+      if (selectedOption === "Population") setFiltredData(population());
+      if (selectedOption === "Alphabetical") setFiltredData(data.sort());
+      if (selectedOption === "Area") setFiltredData(area());
+    }
+  }, [data, selectedOption]);
 
   return (
     <div className="">
@@ -64,6 +82,8 @@ const PageOne = ({ countries }) => {
           region={region}
           setSelectedRegions={setSelectedRegions}
           selectedRegions={selectedRegions}
+          selectedOption={selectedOption}
+          setSelectedOption={setSelectedOption}
         />
         <Table countries={countries} data={filtredData} setData={setData} />
       </div>
@@ -77,9 +97,10 @@ const Controlers = ({
   region,
   setSelectedRegions,
   selectedRegions,
+  selectedOption,
+  setSelectedOption,
 }) => {
   let countriesFound = 250;
-  const [selectedOption, setSelectedOption] = useState("Option 1");
   return (
     <div className="flex flex-col items-center">
       {/* line One */}
@@ -142,7 +163,7 @@ const Controlers = ({
   );
 };
 const DropDownMenu = ({ setSelectedOption, selectedOption }) => {
-  const options = ["Option 1", "Option 2", "Option 3"];
+  const options = ["Population", "Alphabetical", "Area"];
   const [isOpen, setIsOpen] = useState(false);
 
   const handleToggleDropdown = () => {
@@ -150,7 +171,7 @@ const DropDownMenu = ({ setSelectedOption, selectedOption }) => {
   };
   const handleOptionChange = (option) => {
     setSelectedOption(option);
-    setIsOpen(false); // Close the dropdown when an option is selected
+    setIsOpen(false);
   };
 
   return (
@@ -181,13 +202,13 @@ const DropDownMenu = ({ setSelectedOption, selectedOption }) => {
       </div>
 
       {isOpen && (
-        <div className="origin-top-right absolute right-0 mt-2 w-full rounded-md shadow-lg bg-transparent  ring-1 ring-black ring-opacity-5">
+        <div className="origin-top-right absolute right-0 mt-2 w-full rounded-md shadow-lg bg-gray-800  ring-1 ring-black ring-opacity-5">
           <div className="py-1">
             {options.map((option) => (
               <button
                 key={option}
                 onClick={() => handleOptionChange(option)}
-                className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-100 hover:text-gray-900"
+                className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-100 hover:text-gray-900 transition-all w-full text-left"
               >
                 {option}
               </button>
@@ -232,26 +253,6 @@ const Region = ({ setRegion, setProp, setSelectedRegions, selectedRegions }) => 
           </div>
         ))}
       </div>
-    </div>
-  );
-};
-const CheckBox = () => {
-  const [isChecked, setChecked] = useState(false);
-
-  const handleCheckboxChange = () => {
-    setChecked(!isChecked);
-  };
-
-  return (
-    <div
-      className={`w-9 h-9 ${
-        isChecked ? "bg-blue-500" : "bg-transparent"
-      } border-2 border-gray-500 rounded-lg cursor-pointer`}
-      onClick={handleCheckboxChange}
-    >
-      {isChecked && (
-        <div className="w-full h-full flex items-center justify-center text-white">✔</div>
-      )}
     </div>
   );
 };
