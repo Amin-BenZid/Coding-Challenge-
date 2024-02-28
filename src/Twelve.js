@@ -19,11 +19,7 @@ const Twelve = () => {
         console.log(error);
       });
   }, []);
-  return (
-    <div>
-      <PageOne countries={countries} />
-    </div>
-  );
+  return <div>{countries ? <PageOne countries={countries} /> : null}</div>;
 };
 // ::::::::::::::::::::::::::::PAGE ONE:::::::::::::::::::::::::::::: //
 const PageOne = ({ countries }) => {
@@ -32,6 +28,7 @@ const PageOne = ({ countries }) => {
   const [filtredData, setFiltredData] = useState();
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [selectedOption, setSelectedOption] = useState("Population");
+  const [isMember, setMember] = useState({ val: "member", checked: false });
 
   useEffect(() => {
     setFiltredData(data);
@@ -39,14 +36,6 @@ const PageOne = ({ countries }) => {
 
   var array = data;
 
-  const population = () => {
-    const sorted = [...data].sort((a, b) => b.population - a.population);
-    return sorted;
-  };
-  const area = () => {
-    const sorted = [...data].sort((a, b) => b.area - a.area);
-    return sorted;
-  };
   const search = () => {
     if (data && selectedRegions.length > 0) {
       const uniqueArray = [...new Set(selectedRegions)];
@@ -58,14 +47,6 @@ const PageOne = ({ countries }) => {
   useEffect(() => {
     setFiltredData(search());
   }, [selectedRegions.length]);
-
-  useEffect(() => {
-    if (data) {
-      if (selectedOption === "Population") setFiltredData(population());
-      if (selectedOption === "Alphabetical") setFiltredData(data.sort());
-      if (selectedOption === "Area") setFiltredData(area());
-    }
-  }, [data, selectedOption]);
 
   return (
     <div className="">
@@ -84,8 +65,16 @@ const PageOne = ({ countries }) => {
           selectedRegions={selectedRegions}
           selectedOption={selectedOption}
           setSelectedOption={setSelectedOption}
+          setMember={setMember}
         />
-        <Table countries={countries} data={filtredData} setData={setData} />
+        <Table
+          countries={countries}
+          data={filtredData}
+          setData={setData}
+          selectedOption={selectedOption}
+          setSelectedOption={setSelectedOption}
+          isMember={isMember}
+        />
       </div>
     </div>
   );
@@ -99,6 +88,7 @@ const Controlers = ({
   selectedRegions,
   selectedOption,
   setSelectedOption,
+  setMember,
 }) => {
   let countriesFound = 250;
   return (
@@ -145,15 +135,29 @@ const Controlers = ({
       {/* line Four */}
       <div className="w-full">
         <p className="text-sm text-stone-500 pb-2">Status</p>
-        <div className="w-full flex flex-col gap-4">
+        <div className="w-full flex flex-col gap-4 pl-5">
           <div className="flex items-center gap-4 ">
-            <input type="checkbox" />
+            <input
+              type="checkbox"
+              className="w-8 h-8 border-2 rounded-lg box-border"
+              onChange={(e) => {
+                setMember({ val: e.target.value, checked: e.target.checked });
+              }}
+              value="member"
+            />
             <p className="text-sm text-gray-400 font-bold">
               Memeber of the United Nations
             </p>
           </div>
           <div className="flex items-center gap-4 ">
-            <input type="checkbox" />
+            <input
+              type="checkbox"
+              className="w-8 h-8 border-2 rounded-lg box-border"
+              onChange={(e) => {
+                setMember({ val: e.target.value, checked: e.target.checked });
+              }}
+              value="independent"
+            />
             <p className="text-sm text-gray-400 font-bold">Independent</p>
           </div>
         </div>
@@ -219,7 +223,7 @@ const DropDownMenu = ({ setSelectedOption, selectedOption }) => {
     </div>
   );
 };
-const Region = ({ setRegion, setProp, setSelectedRegions, selectedRegions }) => {
+const Region = ({ setRegion, setSelectedRegions, selectedRegions }) => {
   const regions = ["Americas", "Antarctic", "Africa", "Asia", "Europe", "Oceania"];
 
   const toggleRegion = (region) => {
@@ -256,8 +260,39 @@ const Region = ({ setRegion, setProp, setSelectedRegions, selectedRegions }) => 
     </div>
   );
 };
-const Table = ({ countries, data, setData }) => {
+const Table = ({ countries, data, setData, selectedOption, isMember }) => {
   const [active, setActive] = useState(1);
+  const [filtred, setFiltred] = useState();
+  const population = () => {
+    const sorted = [...data].sort((a, b) => b.population - a.population);
+    return sorted;
+  };
+  const area = () => {
+    const sorted = [...data].sort((a, b) => b.area - a.area);
+    return sorted;
+  };
+  let array = data;
+  const filterMember = () => {
+    if (data) {
+      if (isMember.val === "member" && isMember.checked === true) {
+        array = data.filter((item) => item.unMember === true);
+      }
+      if (isMember.val === "independent" && isMember.checked === true) {
+        array = data.filter((item) => item.unMember === false);
+      } else return array;
+    }
+    return array;
+  };
+  useEffect(() => {
+    setFiltred(filterMember());
+  }, [isMember.checked, selectedOption]);
+  useEffect(() => {
+    if (data) {
+      if (selectedOption === "Population") setFiltred(population());
+      if (selectedOption === "Alphabetical") setFiltred(data.sort());
+      if (selectedOption === "Area") setFiltred(area());
+    }
+  }, [data, selectedOption]);
   useEffect(() => {
     if (countries) {
       if (active == 1) {
@@ -306,8 +341,8 @@ const Table = ({ countries, data, setData }) => {
                 </tr>
               </thead>
               <tbody>
-                {data ? (
-                  data.map((e, key) => {
+                {filtred ? (
+                  filtred.map((e, key) => {
                     return (
                       <tr
                         key={key}
