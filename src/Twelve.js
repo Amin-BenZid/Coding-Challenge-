@@ -71,15 +71,11 @@ const PageOne = ({ countries, setSelectedData, selectedOption, setSelectedOption
   let byRegion = [];
   const searchByInput = () => {
     if (countries) {
-      byName = countries.filter(
-        (e) => e.name.common.toLowerCase() === inputData.toLowerCase()
-      );
-      byRegion = countries.filter(
-        (e) => e.region.toLowerCase() === inputData.toLowerCase()
+      byName = countries.filter((e) =>
+        e.name.common.toLowerCase().includes(inputData.toLowerCase())
       );
       if (byName.length > 0) return byName;
-      if (byRegion.length > 0) return byRegion;
-      return arr;
+      return [];
     }
   };
   const filterMember = () => {
@@ -140,7 +136,7 @@ const PageOne = ({ countries, setSelectedData, selectedOption, setSelectedOption
                   setInputData(e.target.value);
                 }}
                 className="h-12 w-full  rounded-xl bg-[#282B30] px-4 pl-12 placeholder:opacity-20 text-white"
-                placeholder="Search by Name, Region"
+                placeholder="Search by Name"
               />
             </div>
           </div>
