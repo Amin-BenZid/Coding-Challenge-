@@ -7,10 +7,10 @@ import { useEffect, useState } from "react";
 
 const Twelve = () => {
   const [countries, setCountries] = useState();
+  const [selectedData, setSelectedData] = useState();
+
   useEffect(() => {
-    fetch(
-      "https://restcountries.com/v3.1/all?fields=name,flags,population,area,region,unMember,independent"
-    )
+    fetch("https://restcountries.com/v3.1/all")
       .then((response) => response.json())
       .then((data) => {
         setCountries(data);
@@ -19,10 +19,119 @@ const Twelve = () => {
         console.log(error);
       });
   }, []);
-  return <div>{countries ? <PageOne countries={countries} /> : null}</div>;
+  return (
+    <div>
+      {!selectedData ? (
+        // SORT LEL DATA KOL MOCH BEL 10 bel 10
+        <PageOne countries={countries} setSelectedData={setSelectedData} />
+      ) : (
+        <PageTwo
+          selectedData={selectedData}
+          countries={countries}
+          setSelectedData={setSelectedData}
+        />
+      )}
+      {/* {countries ? <PageTwo selectedData={selectedData} /> : null} */}
+    </div>
+  );
 };
+const PageTwo = ({ selectedData, countries, setSelectedData }) => {
+  function getNeighbours() {
+    if (selectedData.borders) {
+      if (selectedData.borders.length > 0) {
+        return selectedData.borders.map((border) => {
+          return countries.filter((country) => country.cca3 === border)[0];
+        });
+      }
+    }
+    return [];
+  }
+
+  return (
+    <div>
+      <div className="relative h-[138vh] bg-[#161719] text-gray-300 flex flex-col items-center">
+        <div
+          className="bg-cover bg-center h-[200px] w-full flex justify-center py-8 px-8 relative "
+          style={{ backgroundImage: `url(${bg})` }}
+        >
+          <img className="absolute top-10" src={logo} />
+        </div>
+        <div className="bg-[#1C1D1F] w-96 h-auto absolute rounded-lg shadow-2xl top-[15%] flex flex-col items-center gap-6">
+          <div className="flex py-3 top-[-10%] absolute ">
+            <div
+              className="bg-cover bg-center flex justify-center h-36 w-48 rounded-lg "
+              style={{ backgroundImage: `url(${selectedData.flags.png})` }}
+            ></div>
+          </div>
+          <div className="w-full flex flex-col items-center pt-32">
+            <h1 className="font-bold text-2xl">{selectedData.name.common}</h1>
+            <p>Republic of france</p>
+          </div>
+          <div className="flex items-center justify-center w-full h-10 gap-4 ">
+            <div className="bg-[#282B30] w-48 h-full rounded-lg flex justify-center items-center py-1 gap-2">
+              <p className="text-gray-500 text-sm">Population</p>
+              <div className="w-[1.5px] h-full bg-gray-900 bg-opacity-35"></div>
+              <p className="text-sm">4.654.456.654</p>
+            </div>
+            <div className="bg-[#282B30] w-32 h-full rounded-lg flex justify-center items-center py-1 gap-2">
+              <p className="text-gray-500 text-sm">Area</p>
+              <div className="w-[1.5px] h-full bg-gray-900 bg-opacity-35"></div>
+              <p className="text-sm">4.654.456</p>
+            </div>
+          </div>
+          <div className="flex flex-col w-full gap-4">
+            <Element a={"Capital"} b={selectedData.capital[0]} />
+            <Element a={"Subregion"} b={selectedData.subregion} />
+            <Element a={"Language"} b={Object.values(selectedData.languages)[0]} />
+            <Element
+              a={"Currencies"}
+              b={
+                (Object.values(selectedData.currencies)[0].name,
+                Object.values(selectedData.currencies)[0].name)
+              }
+            />
+            <Element a={"continents"} b={selectedData.continents[0]} />
+            {bar}
+            <div className="flex flex-col gap-4 px-8">
+              <p className="text-gray-500">Neighbouring Countries</p>
+              <div className="grid pb-4 grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
+                {getNeighbours().map((e, key) => {
+                  return (
+                    <div
+                      onClick={() => {
+                        setSelectedData(e);
+                      }}
+                      className="flex flex-col justify-center gap-2 cursor-pointer"
+                      key={key}
+                    >
+                      <img className="w-20 h-12 rounded-lg" src={e.flags.png} />
+                      <p className="text-sm">{e.name.common}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+const Element = ({ a, b }) => {
+  return (
+    <>
+      {bar}
+      <div className="flex px-8 w-full">
+        <p className="text-gray-500 w-[50%] ">{a}</p>
+        <p className="text-right w-[50%]">{b}</p>
+      </div>
+    </>
+  );
+};
+const bar = <div className="w-full h-[1px] bg-gray-500 bg-opacity-35 "></div>;
+
 // ::::::::::::::::::::::::::::PAGE ONE:::::::::::::::::::::::::::::: //
-const PageOne = ({ countries }) => {
+const PageOne = ({ countries, setSelectedData }) => {
   const [region, setRegion] = useState([]);
   const [data, setData] = useState();
   const [filtredData, setFiltredData] = useState();
@@ -74,6 +183,7 @@ const PageOne = ({ countries }) => {
           selectedOption={selectedOption}
           setSelectedOption={setSelectedOption}
           isMember={isMember}
+          setSelectedData={setSelectedData}
         />
       </div>
     </div>
@@ -260,7 +370,14 @@ const Region = ({ setRegion, setSelectedRegions, selectedRegions }) => {
     </div>
   );
 };
-const Table = ({ countries, data, setData, selectedOption, isMember }) => {
+const Table = ({
+  countries,
+  data,
+  setData,
+  selectedOption,
+  isMember,
+  setSelectedData,
+}) => {
   const [active, setActive] = useState(1);
   const [filtred, setFiltred] = useState();
   const population = () => {
@@ -345,6 +462,9 @@ const Table = ({ countries, data, setData, selectedOption, isMember }) => {
                   filtred.map((e, key) => {
                     return (
                       <tr
+                        onClick={() => {
+                          setSelectedData(e);
+                        }}
                         key={key}
                         className="transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600"
                       >
