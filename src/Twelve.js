@@ -1,29 +1,52 @@
 import bg from "./img/hero-image-wr1.jpg";
 import logo from "./img/Logo1.svg";
-import done from "./img/Done_round1.svg";
-import expand from "./img/Expand_down.svg";
 import search from "./img/Search.svg";
 import { useEffect, useState } from "react";
 
 const Twelve = () => {
   const [countries, setCountries] = useState();
+  // data for the second page
   const [selectedData, setSelectedData] = useState();
+  const [selectedOption, setSelectedOption] = useState("Population");
 
   useEffect(() => {
     fetch("https://restcountries.com/v3.1/all")
       .then((response) => response.json())
       .then((data) => {
-        setCountries(data);
+        if (selectedOption === "Population")
+          setCountries([...data].sort((a, b) => b.population - a.population));
+        if (selectedOption === "Alphabetical")
+          setCountries(
+            data.sort((a, b) => {
+              const nameA = a.name.common.toLowerCase();
+              const nameB = b.name.common.toLowerCase();
+
+              if (nameA < nameB) {
+                return -1;
+              }
+              if (nameA > nameB) {
+                return 1;
+              }
+
+              return 0;
+            })
+          );
+        if (selectedOption === "Area")
+          setCountries([...data].sort((a, b) => b.area - a.area));
       })
       .catch((error) => {
         console.log(error);
       });
-  }, []);
+  }, [selectedOption.length]);
   return (
     <div>
       {!selectedData ? (
-        // SORT LEL DATA KOL MOCH BEL 10 bel 10
-        <PageOne countries={countries} setSelectedData={setSelectedData} />
+        <PageOne
+          countries={countries}
+          setSelectedData={setSelectedData}
+          selectedOption={selectedOption}
+          setSelectedOption={setSelectedOption}
+        />
       ) : (
         <PageTwo
           selectedData={selectedData}
@@ -31,10 +54,11 @@ const Twelve = () => {
           setSelectedData={setSelectedData}
         />
       )}
-      {/* {countries ? <PageTwo selectedData={selectedData} /> : null} */}
     </div>
   );
 };
+const bar = <div className="w-full h-[1px] bg-gray-500 bg-opacity-35 "></div>;
+
 const PageTwo = ({ selectedData, countries, setSelectedData }) => {
   function getNeighbours() {
     if (selectedData.borders) {
@@ -46,7 +70,7 @@ const PageTwo = ({ selectedData, countries, setSelectedData }) => {
     }
     return [];
   }
-
+  console.log(selectedData.name);
   return (
     <div>
       <div className="relative h-[138vh] bg-[#161719] text-gray-300 flex flex-col items-center">
@@ -55,6 +79,12 @@ const PageTwo = ({ selectedData, countries, setSelectedData }) => {
           style={{ backgroundImage: `url(${bg})` }}
         >
           <img className="absolute top-10" src={logo} />
+          <p
+            onClick={() => setSelectedData()}
+            className="w-full text-gray-500 text-[4rem] cursor-pointer hover:text-opacity-40 transition-all"
+          >
+            {"<"}
+          </p>
         </div>
         <div className="bg-[#1C1D1F] w-96 h-auto absolute rounded-lg shadow-2xl top-[15%] flex flex-col items-center gap-6">
           <div className="flex py-3 top-[-10%] absolute ">
@@ -63,9 +93,10 @@ const PageTwo = ({ selectedData, countries, setSelectedData }) => {
               style={{ backgroundImage: `url(${selectedData.flags.png})` }}
             ></div>
           </div>
+
           <div className="w-full flex flex-col items-center pt-32">
             <h1 className="font-bold text-2xl">{selectedData.name.common}</h1>
-            <p>Republic of france</p>
+            <p>{selectedData.name.official}</p>
           </div>
           <div className="flex items-center justify-center w-full h-10 gap-4 ">
             <div className="bg-[#282B30] w-48 h-full rounded-lg flex justify-center items-center py-1 gap-2">
@@ -128,34 +159,45 @@ const Element = ({ a, b }) => {
     </>
   );
 };
-const bar = <div className="w-full h-[1px] bg-gray-500 bg-opacity-35 "></div>;
 
-// ::::::::::::::::::::::::::::PAGE ONE:::::::::::::::::::::::::::::: //
-const PageOne = ({ countries, setSelectedData }) => {
+const PageOne = ({ countries, setSelectedData, selectedOption, setSelectedOption }) => {
   const [region, setRegion] = useState([]);
-  const [data, setData] = useState();
   const [filtredData, setFiltredData] = useState();
   const [selectedRegions, setSelectedRegions] = useState([]);
-  const [selectedOption, setSelectedOption] = useState("Population");
   const [isMember, setMember] = useState({ val: "member", checked: false });
 
   useEffect(() => {
-    setFiltredData(data);
-  }, [data]);
+    setFiltredData(countries);
+  }, [countries]);
 
-  var array = data;
+  let arr = countries;
+  const filterMember = () => {
+    if (countries) {
+      if (isMember.val === "member" && isMember.checked === true) {
+        arr = countries.filter((item) => item.unMember === true);
+      }
+      if (isMember.val === "independent" && isMember.checked === true) {
+        arr = countries.filter((item) => item.unMember === false);
+      } else return arr;
+    }
+    return arr;
+  };
 
-  const search = () => {
-    if (data && selectedRegions.length > 0) {
-      const uniqueArray = [...new Set(selectedRegions)];
-      setSelectedRegions(uniqueArray);
-      array = data.filter((item) => selectedRegions.includes(item.region));
-      return array;
-    } else return array;
+  const filterRegion = () => {
+    if (countries) {
+      if (selectedRegions.length > 0)
+        arr = countries.filter((item) => selectedRegions.includes(item.region));
+      return arr;
+    }
+    return arr;
   };
   useEffect(() => {
-    setFiltredData(search());
+    setFiltredData(filterRegion());
   }, [selectedRegions.length]);
+
+  useEffect(() => {
+    setFiltredData(filterMember());
+  }, [isMember.checked, selectedOption, countries]);
 
   return (
     <div className="">
@@ -179,17 +221,13 @@ const PageOne = ({ countries, setSelectedData }) => {
         <Table
           countries={countries}
           data={filtredData}
-          setData={setData}
-          selectedOption={selectedOption}
-          setSelectedOption={setSelectedOption}
-          isMember={isMember}
+          setData={setFiltredData}
           setSelectedData={setSelectedData}
         />
       </div>
     </div>
   );
 };
-// ::::::::::::::::::::::::::::END PAGE ONE::::::::::::::::::::::::::: //
 const Controlers = ({
   countries,
   setRegion,
@@ -370,73 +408,29 @@ const Region = ({ setRegion, setSelectedRegions, selectedRegions }) => {
     </div>
   );
 };
-const Table = ({
-  countries,
-  data,
-  setData,
-  selectedOption,
-  isMember,
-  setSelectedData,
-}) => {
-  const [active, setActive] = useState(1);
-  const [filtred, setFiltred] = useState();
-  const population = () => {
-    const sorted = [...data].sort((a, b) => b.population - a.population);
-    return sorted;
-  };
-  const area = () => {
-    const sorted = [...data].sort((a, b) => b.area - a.area);
-    return sorted;
-  };
-  let array = data;
-  const filterMember = () => {
-    if (data) {
-      if (isMember.val === "member" && isMember.checked === true) {
-        array = data.filter((item) => item.unMember === true);
-      }
-      if (isMember.val === "independent" && isMember.checked === true) {
-        array = data.filter((item) => item.unMember === false);
-      } else return array;
-    }
-    return array;
-  };
-  useEffect(() => {
-    setFiltred(filterMember());
-  }, [isMember.checked, selectedOption]);
+const Table = ({ data, setSelectedData }) => {
+  const [activePage, setActivePage] = useState(1);
+  const [currentCountries, setCurrentCountries] = useState([]);
+  const countriesPerPage = 10;
+  let totalPages = 0;
+
+  if (data) {
+    totalPages = Math.round(data.length / countriesPerPage);
+  }
+  const startIndex = (activePage - 1) * countriesPerPage;
+  const endIndex = startIndex + countriesPerPage;
   useEffect(() => {
     if (data) {
-      if (selectedOption === "Population") setFiltred(population());
-      if (selectedOption === "Alphabetical") setFiltred(data.sort());
-      if (selectedOption === "Area") setFiltred(area());
+      setCurrentCountries(data.slice(startIndex, endIndex));
     }
-  }, [data, selectedOption]);
-  useEffect(() => {
-    if (countries) {
-      if (active == 1) {
-        setData(countries.slice(0, 10));
-      }
-    }
-  }, []);
-
-  const next = () => {
-    if (active === 25) return;
-    const startIndex = (active - 1) * 10 + 10;
-    const endIndex = startIndex + 10;
-    setActive(active + 1);
-    setData(countries.slice(startIndex, endIndex));
-  };
-
-  const prev = () => {
-    if (active === 1) return;
-
-    const startIndex = (active - 2) * 10;
-    const endIndex = startIndex + 10;
-    setActive(active - 1);
-    setData(countries.slice(startIndex, endIndex));
-  };
+  }, [data, activePage]);
 
   return (
     <div className="flex flex-col w-[90vw]">
+      <p className="text-gray-500 font-bold text-sm py-4 ">{`Found ${
+        data ? data.length : null
+      } countries `}</p>
+
       <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
           <div className="overflow-hidden">
@@ -453,58 +447,58 @@ const Table = ({
                     Population
                   </th>
                   <th scope="col" className="px-6 py-4">
-                    Are
+                    Area
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {filtred ? (
-                  filtred.map((e, key) => {
-                    return (
-                      <tr
-                        onClick={() => {
-                          setSelectedData(e);
-                        }}
-                        key={key}
-                        className="transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600"
-                      >
-                        <td>
-                          <div className="flex py-3">
-                            <div
-                              className="bg-cover bg-center flex justify-center h-10 w-14 rounded-md "
-                              style={{ backgroundImage: `url(${e.flags.png})` }}
-                            ></div>
-                          </div>
-                        </td>
-                        <td>{e.name.common}</td>
-                        <td>{e.population}</td>
-                        <td>{e.area}</td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td>Loading...</td>
+                {currentCountries.map((e, key) => (
+                  <tr
+                    onClick={() => {
+                      setSelectedData(e);
+                    }}
+                    key={key}
+                    className=" cursor-pointer transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600"
+                  >
+                    <td>
+                      <div className="flex py-3">
+                        <div
+                          className="bg-cover bg-center flex justify-center h-10 w-14 rounded-md "
+                          style={{ backgroundImage: `url(${e.flags.png})` }}
+                        ></div>
+                      </div>
+                    </td>
+                    <td>{e.name.common}</td>
+                    <td>{e.population}</td>
+                    <td>{e.area}</td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
           </div>
         </div>
       </div>
-      <div className="flex gap-4 items-center pt-4 justify-center">
+      <div className="flex justify-center items-center pt-4 gap-4">
         <button
-          onClick={prev}
-          className="border-2 border-gray-600 rounded-lg text-gray-300 p-4 w-8 h-8 flex justify-center items-center"
+          className={`flex justify-center items-center text-lg border-2 border-gray-600 rounded-lg text-gray-300 p-4 w-8 h-8 flexcenter  ${
+            activePage === 1 ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={activePage === 1}
+          onClick={() => setActivePage(activePage - 1)}
         >
           {"<"}
         </button>
-        <p>
-          Page <strong>{active}</strong> of <strong>25</strong>
-        </p>
+        <div className="flex gap-4 items-center">
+          <p className="text-gray-300">
+            {activePage} / {totalPages}
+          </p>
+        </div>
         <button
-          onClick={next}
-          className="border-2 border-gray-600 rounded-lg text-gray-300 p-4 w-8 h-8 flex justify-center items-center"
+          className={` flex justify-center items-center text-lg  border-2 border-gray-600 rounded-lg text-gray-300 p-4 w-8 h-8 flexcenter  ${
+            activePage === totalPages ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={activePage === totalPages}
+          onClick={() => setActivePage(activePage + 1)}
         >
           {">"}
         </button>
