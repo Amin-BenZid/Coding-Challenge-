@@ -62,10 +62,26 @@ const PageOne = ({ countries, setSelectedData, selectedOption, setSelectedOption
   const [filtredData, setFiltredData] = useState();
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [isMember, setMember] = useState({ val: "member", checked: false });
+  const [inputData, setInputData] = useState("");
   useEffect(() => {
     setFiltredData(countries);
   }, [countries]);
   let arr = countries;
+  let byName = [];
+  let byRegion = [];
+  const searchByInput = () => {
+    if (countries) {
+      byName = countries.filter(
+        (e) => e.name.common.toLowerCase() === inputData.toLowerCase()
+      );
+      byRegion = countries.filter(
+        (e) => e.region.toLowerCase() === inputData.toLowerCase()
+      );
+      if (byName.length > 0) return byName;
+      if (byRegion.length > 0) return byRegion;
+      return arr;
+    }
+  };
   const filterMember = () => {
     if (countries) {
       if (isMember.val === "member" && isMember.checked === true) {
@@ -91,6 +107,9 @@ const PageOne = ({ countries, setSelectedData, selectedOption, setSelectedOption
   useEffect(() => {
     setFiltredData(filterMember());
   }, [isMember.checked, selectedOption, countries]);
+  useEffect(() => {
+    setFiltredData(searchByInput());
+  }, [inputData]);
   return (
     <div className="md:relative">
       <div
@@ -117,8 +136,11 @@ const PageOne = ({ countries, setSelectedData, selectedOption, setSelectedOption
                 />
               </div>
               <input
+                onChange={(e) => {
+                  setInputData(e.target.value);
+                }}
                 className="h-12 w-full  rounded-xl bg-[#282B30] px-4 pl-12 placeholder:opacity-20 text-white"
-                placeholder="Search by Name, Region, Subregion"
+                placeholder="Search by Name, Region"
               />
             </div>
           </div>
@@ -413,7 +435,7 @@ const PageTwo = ({ selectedData, countries, setSelectedData }) => {
   }
   return (
     <div>
-      <div className="relative h-[138vh] bg-[#161719] text-gray-300 flex flex-col items-center md:h-[100vh]">
+      <div className="relative h-[138vh] bg-[#161719] text-gray-300 flex flex-col items-center md:h-[140vh]">
         <div
           className="bg-cover bg-center h-[200px] w-full flex justify-center py-8 px-8 relative "
           style={{ backgroundImage: `url(${bg})` }}
