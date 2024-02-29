@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 
 const Twelve = () => {
   const [countries, setCountries] = useState();
-  // data for the second page
   const [selectedData, setSelectedData] = useState();
   const [selectedOption, setSelectedOption] = useState("Population");
 
@@ -58,118 +57,14 @@ const Twelve = () => {
   );
 };
 const bar = <div className="w-full h-[1px] bg-gray-500 bg-opacity-35 "></div>;
-
-const PageTwo = ({ selectedData, countries, setSelectedData }) => {
-  function getNeighbours() {
-    if (selectedData.borders) {
-      if (selectedData.borders.length > 0) {
-        return selectedData.borders.map((border) => {
-          return countries.filter((country) => country.cca3 === border)[0];
-        });
-      }
-    }
-    return [];
-  }
-  console.log(selectedData.name);
-  return (
-    <div>
-      <div className="relative h-[138vh] bg-[#161719] text-gray-300 flex flex-col items-center">
-        <div
-          className="bg-cover bg-center h-[200px] w-full flex justify-center py-8 px-8 relative "
-          style={{ backgroundImage: `url(${bg})` }}
-        >
-          <img className="absolute top-10" src={logo} />
-          <p
-            onClick={() => setSelectedData()}
-            className="w-full text-gray-500 text-[4rem] cursor-pointer hover:text-opacity-40 transition-all"
-          >
-            {"<"}
-          </p>
-        </div>
-        <div className="bg-[#1C1D1F] w-96 h-auto absolute rounded-lg shadow-2xl top-[15%] flex flex-col items-center gap-6">
-          <div className="flex py-3 top-[-10%] absolute ">
-            <div
-              className="bg-cover bg-center flex justify-center h-36 w-48 rounded-lg "
-              style={{ backgroundImage: `url(${selectedData.flags.png})` }}
-            ></div>
-          </div>
-
-          <div className="w-full flex flex-col items-center pt-32">
-            <h1 className="font-bold text-2xl">{selectedData.name.common}</h1>
-            <p>{selectedData.name.official}</p>
-          </div>
-          <div className="flex items-center justify-center w-full h-10 gap-4 ">
-            <div className="bg-[#282B30] w-48 h-full rounded-lg flex justify-center items-center py-1 gap-2">
-              <p className="text-gray-500 text-sm">Population</p>
-              <div className="w-[1.5px] h-full bg-gray-900 bg-opacity-35"></div>
-              <p className="text-sm">4.654.456.654</p>
-            </div>
-            <div className="bg-[#282B30] w-32 h-full rounded-lg flex justify-center items-center py-1 gap-2">
-              <p className="text-gray-500 text-sm">Area</p>
-              <div className="w-[1.5px] h-full bg-gray-900 bg-opacity-35"></div>
-              <p className="text-sm">4.654.456</p>
-            </div>
-          </div>
-          <div className="flex flex-col w-full gap-4">
-            <Element a={"Capital"} b={selectedData.capital[0]} />
-            <Element a={"Subregion"} b={selectedData.subregion} />
-            <Element a={"Language"} b={Object.values(selectedData.languages)[0]} />
-            <Element
-              a={"Currencies"}
-              b={
-                (Object.values(selectedData.currencies)[0].name,
-                Object.values(selectedData.currencies)[0].name)
-              }
-            />
-            <Element a={"continents"} b={selectedData.continents[0]} />
-            {bar}
-            <div className="flex flex-col gap-4 px-8">
-              <p className="text-gray-500">Neighbouring Countries</p>
-              <div className="grid pb-4 grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
-                {getNeighbours().map((e, key) => {
-                  return (
-                    <div
-                      onClick={() => {
-                        setSelectedData(e);
-                      }}
-                      className="flex flex-col justify-center gap-2 cursor-pointer"
-                      key={key}
-                    >
-                      <img className="w-20 h-12 rounded-lg" src={e.flags.png} />
-                      <p className="text-sm">{e.name.common}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-const Element = ({ a, b }) => {
-  return (
-    <>
-      {bar}
-      <div className="flex px-8 w-full">
-        <p className="text-gray-500 w-[50%] ">{a}</p>
-        <p className="text-right w-[50%]">{b}</p>
-      </div>
-    </>
-  );
-};
-
 const PageOne = ({ countries, setSelectedData, selectedOption, setSelectedOption }) => {
   const [region, setRegion] = useState([]);
   const [filtredData, setFiltredData] = useState();
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [isMember, setMember] = useState({ val: "member", checked: false });
-
   useEffect(() => {
     setFiltredData(countries);
   }, [countries]);
-
   let arr = countries;
   const filterMember = () => {
     if (countries) {
@@ -182,7 +77,6 @@ const PageOne = ({ countries, setSelectedData, selectedOption, setSelectedOption
     }
     return arr;
   };
-
   const filterRegion = () => {
     if (countries) {
       if (selectedRegions.length > 0)
@@ -194,36 +88,59 @@ const PageOne = ({ countries, setSelectedData, selectedOption, setSelectedOption
   useEffect(() => {
     setFiltredData(filterRegion());
   }, [selectedRegions.length]);
-
   useEffect(() => {
     setFiltredData(filterMember());
   }, [isMember.checked, selectedOption, countries]);
-
   return (
-    <div className="">
+    <div className="md:relative">
       <div
-        className="bg-cover bg-center h-full min-h-[200px] w-full flex justify-center py-8 px-8 relative md:min-h-[300px]"
+        className="bg-cover bg-center h-full min-h-[200px] w-full flex justify-center py-8 px-8 relative md:min-h-[300px] md:absolute md:h-[300px] md:top-0"
         style={{ backgroundImage: `url(${bg})` }}
       >
-        <img src={logo} />
+        <img className="md:w-52" src={logo} />
       </div>
-      <div className="bg-[#1C1D1F] min-h-screen  text-white p-4 ">
-        <Controlers
-          countries={countries}
-          setRegion={setRegion}
-          region={region}
-          setSelectedRegions={setSelectedRegions}
-          selectedRegions={selectedRegions}
-          selectedOption={selectedOption}
-          setSelectedOption={setSelectedOption}
-          setMember={setMember}
-        />
-        <Table
-          countries={countries}
-          data={filtredData}
-          setData={setFiltredData}
-          setSelectedData={setSelectedData}
-        />
+
+      <div className="bg-[#191A1C] min-h-screen md:h-[110vh] lg:h-[165vh] text-white md:p-8  md:w-full md:pt-60 ">
+        <div className="md:bg-[#1C1D1F] md:absolute w-[94%] md:rounded-xl md:shadow-2xl p-4 md:p-8">
+          <div className=" flex items-center w-full gap-8 md:gap-[420px]">
+            <p className="text-gray-500 font-bold text-sm md:text-lg md:w-full">{`Found ${
+              filtredData ? filtredData.length : null
+            } countries `}</p>
+            <div className="relative md:w-[160%] w-[50%] flex gap-4 transition-all">
+              <div
+                type="button"
+                className="absolute inset-y-0 left-0 h-12 w-14 flex items-center justify-center "
+              >
+                <img
+                  className="opacity-20 cursor-pointer hover:opacity-75 transition-all"
+                  src={search}
+                />
+              </div>
+              <input
+                className="h-12 w-full  rounded-xl bg-[#282B30] px-4 pl-12 placeholder:opacity-20 text-white"
+                placeholder="Search by Name, Region, Subregion"
+              />
+            </div>
+          </div>
+          <div className=" md:flex">
+            <Controlers
+              countries={countries}
+              setRegion={setRegion}
+              region={region}
+              setSelectedRegions={setSelectedRegions}
+              selectedRegions={selectedRegions}
+              selectedOption={selectedOption}
+              setSelectedOption={setSelectedOption}
+              setMember={setMember}
+            />
+            <Table
+              countries={countries}
+              data={filtredData}
+              setData={setFiltredData}
+              setSelectedData={setSelectedData}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -238,75 +155,56 @@ const Controlers = ({
   setSelectedOption,
   setMember,
 }) => {
-  let countriesFound = 250;
   return (
-    <div className="flex flex-col items-center">
-      {/* line One */}
-      <div className=" flex items-center w-full gap-8">
-        <p className="text-gray-500 font-bold text-sm">{`Found ${countriesFound} countries `}</p>
-        <div className="relative w-[50%] flex gap-4 transition-all">
-          <div
-            type="button"
-            className="absolute inset-y-0 left-0 h-12 w-14 flex items-center justify-center "
-          >
-            <img
-              className="opacity-20 cursor-pointer hover:opacity-75 transition-all"
-              src={search}
-            />
-          </div>
-          <input
-            className="h-12 w-full rounded-xl bg-[#282B30] px-4 pl-12 placeholder:opacity-20 text-white"
-            placeholder="Search by Name, Region, Subregion"
+    <div className="flex flex-col items-center  md:items-start">
+      {/* Line Two */}
+      <div className="w-full flex items-center justify-center flex-col  md:items-start md:w-56 ">
+        <div className="w-full pt-8 md:w-56">
+          <DropDownMenu
+            setSelectedOption={setSelectedOption}
+            selectedOption={selectedOption}
           />
         </div>
-      </div>
-      {/* End line One */}
-      {/* Line Two */}
-      <div className="w-full pt-8">
-        <DropDownMenu
-          setSelectedOption={setSelectedOption}
-          selectedOption={selectedOption}
-        />
-      </div>
-      {/* End Line two */}
-      {/* Line Three */}
-      <div className="w-full">
-        <Region
-          countries={countries}
-          setRegion={setRegion}
-          region={region}
-          setSelectedRegions={setSelectedRegions}
-          selectedRegions={selectedRegions}
-        />
-      </div>
-      {/* End Line Three */}
-      {/* line Four */}
-      <div className="w-full">
-        <p className="text-sm text-stone-500 pb-2">Status</p>
-        <div className="w-full flex flex-col gap-4 pl-5">
-          <div className="flex items-center gap-4 ">
-            <input
-              type="checkbox"
-              className="w-8 h-8 border-2 rounded-lg box-border"
-              onChange={(e) => {
-                setMember({ val: e.target.value, checked: e.target.checked });
-              }}
-              value="member"
-            />
-            <p className="text-sm text-gray-400 font-bold">
-              Memeber of the United Nations
-            </p>
-          </div>
-          <div className="flex items-center gap-4 ">
-            <input
-              type="checkbox"
-              className="w-8 h-8 border-2 rounded-lg box-border"
-              onChange={(e) => {
-                setMember({ val: e.target.value, checked: e.target.checked });
-              }}
-              value="independent"
-            />
-            <p className="text-sm text-gray-400 font-bold">Independent</p>
+        {/* End Line two */}
+        {/* Line Three */}
+        <div className="w-full">
+          <Region
+            countries={countries}
+            setRegion={setRegion}
+            region={region}
+            setSelectedRegions={setSelectedRegions}
+            selectedRegions={selectedRegions}
+          />
+        </div>
+        {/* End Line Three */}
+        {/* line Four */}
+        <div className="w-full">
+          <p className="text-sm text-stone-500 pb-2">Status</p>
+          <div className="w-full flex flex-col gap-4 pl-5">
+            <div className="flex items-center gap-4 ">
+              <input
+                type="checkbox"
+                className="w-8 h-8 border-2 rounded-lg box-border"
+                onChange={(e) => {
+                  setMember({ val: e.target.value, checked: e.target.checked });
+                }}
+                value="member"
+              />
+              <p className="text-sm text-gray-400 font-bold">
+                Memeber of the United Nations
+              </p>
+            </div>
+            <div className="flex items-center gap-4 ">
+              <input
+                type="checkbox"
+                className="w-8 h-8 border-2 rounded-lg box-border md:w-7 md:h-7"
+                onChange={(e) => {
+                  setMember({ val: e.target.value, checked: e.target.checked });
+                }}
+                value="independent"
+              />
+              <p className="text-sm text-gray-400 font-bold">Independent</p>
+            </div>
           </div>
         </div>
       </div>
@@ -426,11 +324,7 @@ const Table = ({ data, setSelectedData }) => {
   }, [data, activePage]);
 
   return (
-    <div className="flex flex-col w-[90vw]">
-      <p className="text-gray-500 font-bold text-sm py-4 ">{`Found ${
-        data ? data.length : null
-      } countries `}</p>
-
+    <div className="flex flex-col w-[90vw] md:px-4">
       <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
           <div className="overflow-hidden">
@@ -504,6 +398,105 @@ const Table = ({ data, setSelectedData }) => {
         </button>
       </div>
     </div>
+  );
+};
+const PageTwo = ({ selectedData, countries, setSelectedData }) => {
+  function getNeighbours() {
+    if (selectedData.borders) {
+      if (selectedData.borders.length > 0) {
+        return selectedData.borders.map((border) => {
+          return countries.filter((country) => country.cca3 === border)[0];
+        });
+      }
+    }
+    return [];
+  }
+  return (
+    <div>
+      <div className="relative h-[138vh] bg-[#161719] text-gray-300 flex flex-col items-center md:h-[100vh]">
+        <div
+          className="bg-cover bg-center h-[200px] w-full flex justify-center py-8 px-8 relative "
+          style={{ backgroundImage: `url(${bg})` }}
+        >
+          <img className="absolute top-10" src={logo} />
+          <p
+            onClick={() => setSelectedData()}
+            className="w-full text-gray-500 text-[4rem] cursor-pointer hover:text-opacity-40 transition-all"
+          >
+            {"<"}
+          </p>
+        </div>
+        <div className="bg-[#1C1D1F] w-96 h-auto absolute rounded-lg shadow-2xl top-[15%] flex flex-col items-center gap-6 lg:w-[70%] md:top-[11%] ">
+          <div className="flex py-3 top-[-5%] absolute lg:top-[-8%]">
+            <div
+              className="bg-cover bg-center flex justify-center h-36 w-48 rounded-lg "
+              style={{ backgroundImage: `url(${selectedData.flags.png})` }}
+            ></div>
+          </div>
+
+          <div className="w-full flex flex-col items-center pt-32">
+            <h1 className="font-bold text-2xl">{selectedData.name.common}</h1>
+            <p>{selectedData.name.official}</p>
+          </div>
+          <div className="flex items-center justify-center w-full h-10 gap-4 ">
+            <div className="bg-[#282B30] w-48 h-full rounded-lg flex justify-center items-center py-1 gap-2">
+              <p className="text-gray-500 text-sm">Population</p>
+              <div className="w-[1.5px] h-full bg-gray-900 bg-opacity-35"></div>
+              <p className="text-sm">4.654.456.654</p>
+            </div>
+            <div className="bg-[#282B30] w-32 h-full rounded-lg flex justify-center items-center py-1 gap-2">
+              <p className="text-gray-500 text-sm">Area</p>
+              <div className="w-[1.5px] h-full bg-gray-900 bg-opacity-35"></div>
+              <p className="text-sm">4.654.456</p>
+            </div>
+          </div>
+          <div className="flex flex-col w-full gap-4">
+            <Element a={"Capital"} b={selectedData.capital[0]} />
+            <Element a={"Subregion"} b={selectedData.subregion} />
+            <Element a={"Language"} b={Object.values(selectedData.languages)[0]} />
+            <Element
+              a={"Currencies"}
+              b={
+                (Object.values(selectedData.currencies)[0].name,
+                Object.values(selectedData.currencies)[0].name)
+              }
+            />
+            <Element a={"continents"} b={selectedData.continents[0]} />
+            {bar}
+            <div className="flex flex-col gap-4 px-8">
+              <p className="text-gray-500">Neighbouring Countries</p>
+              <div className="grid pb-4 grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-8 gap-4">
+                {getNeighbours().map((e, key) => {
+                  return (
+                    <div
+                      onClick={() => {
+                        setSelectedData(e);
+                      }}
+                      className="flex flex-col justify-center gap-2 cursor-pointer"
+                      key={key}
+                    >
+                      <img className="w-20 h-12 rounded-lg" src={e.flags.png} />
+                      <p className="text-sm">{e.name.common}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+const Element = ({ a, b }) => {
+  return (
+    <>
+      {bar}
+      <div className="flex px-8 w-full">
+        <p className="text-gray-500 w-[50%] ">{a}</p>
+        <p className="text-right w-[50%]">{b}</p>
+      </div>
+    </>
   );
 };
 export default Twelve;
