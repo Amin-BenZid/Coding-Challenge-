@@ -116,7 +116,7 @@ const PageOne = ({ countries, setSelectedData, selectedOption, setSelectedOption
       </div>
 
       <div className="bg-[#191A1C] min-h-screen md:h-[110vh] lg:h-[165vh] text-white md:p-8  md:w-full md:pt-60 ">
-        <div className="md:bg-[#1C1D1F] md:absolute w-[94%] md:rounded-xl md:shadow-2xl p-4 md:p-8">
+        <div className="md:bg-[#1C1D1F] md:absolute w-[96%] md:rounded-xl md:shadow-2xl p-4 md:p-8">
           <div className=" flex items-center w-full gap-8 md:gap-[420px]">
             <p className="text-gray-500 font-bold text-sm md:text-lg md:w-full">{`Found ${
               filtredData ? filtredData.length : null
