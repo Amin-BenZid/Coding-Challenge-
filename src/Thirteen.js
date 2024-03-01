@@ -4,31 +4,21 @@ import check from "./img/Check_round_fillQ.svg";
 import close from "./img/Close_round_fillQ.svg";
 import { useEffect, useState } from "react";
 
+const shuffledArray = (array) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
+
 const Thirteen = () => {
   const [data, setData] = useState([]);
   const [countries, setCountries] = useState([]);
   const [levelData, setLevelData] = useState([]);
-  const [q, setQ] = useState();
-  const [pick, setPick] = useState();
-  const [keyy, setKey] = useState();
+  const [level, setLevel] = useState();
+  const [responses, setResponses] = useState([]);
 
-  const shuffledArray = (array) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  };
-  useEffect(() => {
-    setCountries(data.map((country) => ({ ...country, res: false })));
-  }, [data]);
-  const newGame = () => {
-    let n = Math.floor(Math.random() * 241);
-    if (countries) setLevelData(shuffledArray(countries).slice(n, n + 10));
-  };
-  //   useEffect(() => {
-  //     newGame();
-  //   }, [countries]);
   useEffect(() => {
     fetch("https://restcountries.com/v3.1/all")
       .then((response) => response.json())
@@ -39,8 +29,10 @@ const Thirteen = () => {
         console.log(error);
       });
   }, []);
+
   var choices = [];
   const generateChoices = (elem) => {
+    // this is the question ths(elem)
     if (elem) {
       let arr = countries.filter((e) => e !== elem).slice(0, 3);
       if (elem) {
@@ -48,10 +40,8 @@ const Thirteen = () => {
       }
       choices = [elem, ...arr];
     }
-
     return shuffledArray(choices);
   };
-
   var question;
   const generateQuestion = (capital, flag) => {
     let n = Math.floor(Math.random() * (2 - 1 + 1) + 1);
@@ -62,15 +52,47 @@ const Thirteen = () => {
     }
     return question;
   };
-  const getQ = () => {
-    setQ(question);
+  useEffect(() => {
+    setCountries(
+      data.map((country) => ({ ...country, res: false, done: false, right: false }))
+    );
+  }, [data]);
+
+  const newGame = () => {
+    let n = Math.floor(Math.random() * 241);
+    if (countries) setLevelData(shuffledArray(countries).slice(n, n + 10));
   };
-  const getP = () => {
-    setPick(choices);
+
+  const generateLevel = (e, key) => {
+    setLevel({
+      res: e,
+      question: generateQuestion(e.capital, e.flags.png),
+      choices: generateChoices(e),
+      done: false,
+      right: null,
+      key: key,
+    });
   };
-  const findRight = (data) => {
-    let right = pick.filter((e) => e.res === true)[0].name.common;
-    if (data === right) alert("winnn");
+  console.log(responses);
+  const rightAnsw = () => {
+    setLevel((prevLevel) => {
+      return {
+        ...prevLevel,
+        done: true,
+        right: true,
+      };
+    });
+    setResponses((res) => [...res, true]);
+  };
+  const wrongAnsw = () => {
+    setLevel((prevLevel) => {
+      return {
+        ...prevLevel,
+        done: true,
+        right: false,
+      };
+    });
+    setResponses((res) => [...res, false]);
   };
   return (
     <div
@@ -81,54 +103,54 @@ const Thirteen = () => {
         {levelData.map((e, key) => {
           return (
             <button
-              onClick={() => {
-                generateQuestion(e.capital, e.flags.png, e.res);
-                generateChoices(e);
-                getQ();
-                getP();
-                setKey(key);
-              }}
               key={key}
-              disabled={key === keyy}
-              className="h-20 w-20 bg-green-400 rounded-full cursor-pointer flex items-center justify-center text-2xl"
+              onClick={() => {
+                generateLevel(e, key);
+              }}
+              disabled={level ? level.key === key : false}
+              // add array of keys are kliked and done if key is cliked and done it will be disabled
             >
-              {key + 1}
+              <p className="text-xl w-8 h-8 bg-gray-500">{key + 1}</p>
             </button>
           );
         })}
-      </div>
-      <div>
-        {q ? (
-          q.capital ? (
-            <p className="text-white">which country is {q.capital} the capital</p>
-          ) : (
-            <div className="flex text-white items-center gap-4">
-              Which country does this flag
-              <img className="w-8 h-6 rounded-l" src={q.flag} />
-              belong to ?
-            </div>
-          )
-        ) : null}
-      </div>
-      <div className="flex w-full">
-        {pick
-          ? pick.map((e, key) => {
+        <div className="bg-red-300">
+          {level ? (
+            level.question.capital ? (
+              <p>Which country is {level.question.capital} the capital ?</p>
+            ) : (
+              <div className="flex items-center gap-4">
+                Which country dose this flag
+                <img className="w-14 h-7 rounded-md" src={level.question.flag} />
+                belong to ?
+              </div>
+            )
+          ) : null}
+        </div>
+        {level
+          ? level.choices.map((e, key) => {
               return (
                 <button
-                  onClick={(e) => findRight(e.target.value)}
-                  className="h-20 w-40 bg-yellow-300"
+                  disabled={level.done || level.key === key}
+                  onClick={() => {
+                    e.name.common === level.res.name.common ? rightAnsw() : wrongAnsw();
+                  }}
                   key={key}
-                  value={e.name.common}
                 >
                   {e.name.common}
                 </button>
               );
             })
           : null}
+        <button
+          className="w-14 h-8 bg-gray-600"
+          onClick={() => {
+            newGame();
+          }}
+        >
+          Start
+        </button>
       </div>
-      <button className="w-14 h-20 bg-red-500" onClick={() => newGame()}>
-        aaa
-      </button>
     </div>
   );
 };
