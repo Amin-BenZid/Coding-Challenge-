@@ -1,3 +1,4 @@
+import { Routes, Route } from "react-router-dom";
 import One from "./One";
 import Two from "./Two";
 import Three from "./Three";
@@ -11,24 +12,13 @@ import Ten from "./Ten";
 import Eleven from "./Eleven";
 import Twelve from "./Twelve";
 import Thirteen from "./Thirteen";
+import Home from "./Home";
 
 function App() {
   return (
-    <div className="">
-      {/* <One />
-      <Two /> */}
-      {/* <Three /> rework */}
-      {/* <Four /> */}
-      {/* <Five /> */}
-      {/* <Six /> */}
-      {/* <Seven /> */}
-      {/* <Eight /> */}
-      {/* <Nine /> */}
-      {/* <Ten /> */}
-      {/* <Eleven /> */}
-      {/* <Twelve /> */}
-      <Thirteen />
-    </div>
+    <>
+      <Nine />
+    </>
   );
 }
 
